@@ -356,13 +356,10 @@ func main() {
 	}
 
 	router := gin.Default()
-	//router.GET("/", index)
 	router.GET("/api/items", fetchAuctionItems)
 	router.GET("/api/items/:id", fetchAuctionItemById)
 	router.GET("/api/history", fetchBidHistory)
 	router.POST("/api/bids", processAuctionBids)
-	// WebSocket endpoint
-	//router.GET("/ws", websocketHandler)
 	router.GET("/", func(c *gin.Context) {
 		if websocket.IsWebSocketUpgrade(c.Request) {
 			// Handle as WebSocket
