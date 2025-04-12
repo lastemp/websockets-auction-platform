@@ -56,16 +56,20 @@ var auctionItems = []AuctionItem{
 
 var bidHistory []BidItem
 
-// greeting for default page.
-func greeting(c *gin.Context) {
+// index for default page.
+func index(c *gin.Context) {
 	c.String(http.StatusOK, "MLH GHW API Week!")
 }
 
+// fetch auction items
 func fetchAuctionItems(c *gin.Context) {
+	// respond with existing auction items
 	c.JSON(http.StatusOK, auctionItems)
 }
 
+// fetch auction item by id
 func fetchAuctionItemById(c *gin.Context) {
+	// get the id parameter
 	idParam := c.Param("id")
 
 	// Convert string ID to int
@@ -104,9 +108,10 @@ func processAuctionBids(c *gin.Context) {
 		return
 	}
 
+	// Validate input data
 	if newBidItem.ItemId > 0 && newBidItem.BidAmount > 0 && newBidItem.Bidder > 0 {
 		// valid input data
-	} else {
+	} else { // invalid input data
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input data!"})
 		return
 	}
@@ -115,13 +120,8 @@ func processAuctionBids(c *gin.Context) {
 
 	var foundAuctionItem *AuctionItem
 
-	/*
-		for _, auctionItem := range auctionItems {
-			if int(id) == int(auctionItem.Id) {
-				foundAuctionItem = &auctionItem
-				break
-			}
-		}
+	/* Lets find the auctionItem in the array using id
+	   then reference it by use of foundAuctionItem
 	*/
 	for i := range auctionItems {
 		if int(id) == int(auctionItems[i].Id) {
@@ -135,25 +135,19 @@ func processAuctionBids(c *gin.Context) {
 		return
 	}
 
+	// Validate the amounts
 	if newBidItem.BidAmount <= foundAuctionItem.CurrentBid {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Bid must be higher than current bid"})
 		return
 	}
-
-	/*
-		for i := range auctionItems {
-			if int(id) == int(auctionItems[i].Id) {
-				auctionItems[i].CurrentBid = newBidItem.BidAmount
-				break
-			}
-		}
-	*/
 
 	// Update CurrentBid with new bid amount
 	foundAuctionItem.CurrentBid = newBidItem.BidAmount
 
 	newId := len(bidHistory) + 1
 	currDate := time.Now().UTC().Format(time.RFC3339)
+
+	// Create new bid
 	bidItem := BidItem{
 		Id:        uint32(newId),
 		ItemId:    newBidItem.ItemId,
@@ -162,9 +156,10 @@ func processAuctionBids(c *gin.Context) {
 		TimeStamp: currDate,
 	}
 
+	// Update bidHistory with new bid
 	bidHistory = append(bidHistory, bidItem)
 
-	// Update Bids with new bid
+	// Update Bids(foundAuctionItem) with new bid
 	foundAuctionItem.Bids = append(foundAuctionItem.Bids, bidItem)
 
 	log.Println("bid history:", bidHistory)
@@ -208,7 +203,7 @@ func main() {
 	}
 
 	router := gin.Default()
-	router.GET("/", greeting)
+	router.GET("/", index)
 	router.GET("/api/items", fetchAuctionItems)
 	router.GET("/api/items/:id", fetchAuctionItemById)
 	router.POST("/api/bids", processAuctionBids)
