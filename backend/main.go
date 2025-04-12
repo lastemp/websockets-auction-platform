@@ -79,14 +79,7 @@ func fetchAuctionItemById(c *gin.Context) {
 		return
 	}
 
-	var foundAuctionItem *AuctionItem
-
-	for _, auctionItem := range auctionItems {
-		if int(id) == int(auctionItem.Id) {
-			foundAuctionItem = &auctionItem
-			break
-		}
-	}
+	foundAuctionItem := searchForAuctionItemById(uint32(id))
 
 	if foundAuctionItem != nil {
 		c.JSON(http.StatusOK, foundAuctionItem)
@@ -118,17 +111,7 @@ func processAuctionBids(c *gin.Context) {
 
 	id := newBidItem.ItemId
 
-	var foundAuctionItem *AuctionItem
-
-	/* Lets find the auctionItem in the array using id
-	   then reference it by use of foundAuctionItem
-	*/
-	for i := range auctionItems {
-		if int(id) == int(auctionItems[i].Id) {
-			foundAuctionItem = &auctionItems[i]
-			break
-		}
-	}
+	foundAuctionItem := searchForAuctionItemById(id)
 
 	if foundAuctionItem == nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Item not found"})
@@ -165,6 +148,24 @@ func processAuctionBids(c *gin.Context) {
 	log.Println("bid history:", bidHistory)
 
 	c.JSON(http.StatusCreated, bidItem)
+}
+
+func searchForAuctionItemById(id uint32) *AuctionItem {
+	/* Lets find the auctionItem in the array using id
+	   then reference it by use of foundAuctionItem
+	*/
+
+	var foundAuctionItem *AuctionItem
+
+	for i := range auctionItems {
+		if id == auctionItems[i].Id {
+			foundAuctionItem = &auctionItems[i]
+			break
+		}
+	}
+
+	return foundAuctionItem
+
 }
 
 // Helper function to get and validate an environment variable
