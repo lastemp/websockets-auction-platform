@@ -17,13 +17,13 @@ import (
 type BidIncomingItem struct {
 	ItemId    uint32 `json:"itemId"`
 	BidAmount uint32 `json:"bidAmount"`
-	Bidder    uint16 `json:"bidder"`
+	Bidder    string `json:"bidder"`
 }
 
 type BidItem struct {
 	Id        uint32 `json:"id"`
 	ItemId    uint32 `json:"itemId"`
-	Bidder    uint16 `json:"bidder"`
+	Bidder    string `json:"bidder"`
 	Amount    uint32 `json:"amount"`
 	TimeStamp string `json:"timeStamp"`
 }
@@ -109,7 +109,7 @@ func processAuctionBids(c *gin.Context) {
 	}
 
 	// Validate input data
-	if newBidItem.ItemId > 0 && newBidItem.BidAmount > 0 && newBidItem.Bidder > 0 {
+	if newBidItem.ItemId > 0 && newBidItem.BidAmount > 0 && len(newBidItem.Bidder) > 0 {
 		// valid input data
 	} else { // invalid input data
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input data!"})
